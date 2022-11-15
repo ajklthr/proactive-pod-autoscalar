@@ -99,10 +99,10 @@ go build -o sample-controller .
 ./sample-controller -kubeconfig=$HOME/.kube/config
 
 # create a CustomResourceDefinition
-kubectl create -f artifacts1/examples/crd-status-subresource.yaml
+kubectl create -f artifacts/examples/crd-status-subresource.yaml
 
 # create a custom resource of type Foo
-kubectl create -f artifacts1/examples/example-foo.yaml
+kubectl create -f artifacts/examples/example-foo.yaml
 
 # check deployments created through the custom resource
 kubectl get deployments
@@ -144,7 +144,7 @@ To validate custom resources, use the [`CustomResourceValidation`](https://kuber
 
 ### Example
 
-The schema in [`crd.yaml`](artifacts1/examples/crd.yaml) applies the following validation on the custom resource:
+The schema in [`crd.yaml`](artifacts/examples/crd.yaml) applies the following validation on the custom resource:
 `spec.replicas` must be an integer and must have a minimum value of 1 and a maximum value of 10.
 
 ## Subresources
@@ -153,7 +153,7 @@ Custom Resources support `/status` and `/scale` [subresources](https://kubernete
 
 ### Example
 
-The CRD in [`crd-status-subresource.yaml`](artifacts1/examples/crd-status-subresource.yaml) enables the `/status` subresource for custom resources.
+The CRD in [`crd-status-subresource.yaml`](artifacts/examples/crd-status-subresource.yaml) enables the `/status` subresource for custom resources.
 This means that [`UpdateStatus`](./controller.go) can be used by the controller to update only the status part of the custom resource.
 
 To understand why only the status part of the custom resource should be updated, please refer to the [Kubernetes API conventions](https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status).
@@ -162,7 +162,7 @@ In the above steps, use `crd-status-subresource.yaml` to create the CRD:
 
 ```sh
 # create a CustomResourceDefinition supporting the status subresource
-kubectl create -f artifacts1/examples/crd-status-subresource.yaml
+kubectl create -f artifacts/examples/crd-status-subresource.yaml
 ```
 
 ## A Note on the API version

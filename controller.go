@@ -37,11 +37,11 @@ import (
 	"k8s.io/client-go/util/workqueue"
 	"k8s.io/klog/v2"
 
-	samplev1alpha1 "k8s.io/sample-controller/pkg/apis/samplecontroller/v1alpha1"
-	clientset "k8s.io/sample-controller/pkg/generated/clientset/versioned"
-	samplescheme "k8s.io/sample-controller/pkg/generated/clientset/versioned/scheme"
-	informers "k8s.io/sample-controller/pkg/generated/informers/externalversions/samplecontroller/v1alpha1"
-	listers "k8s.io/sample-controller/pkg/generated/listers/samplecontroller/v1alpha1"
+	samplev1alpha1 "github.com/ajklthr/proactive-pod-autoscalar/pkg/apis/autoscaling/v1alpha1"
+	clientset "github.com/ajklthr/proactive-pod-autoscalar/pkg/client/clientset/versioned"
+	samplescheme "github.com/ajklthr/proactive-pod-autoscalar/pkg/client/clientset/versioned/scheme"
+	informers "github.com/ajklthr/proactive-pod-autoscalar/pkg/client/informers/externalversions/autoscaling/v1alpha1"
+	listers "github.com/ajklthr/proactive-pod-autoscalar/pkg/client/listers/autoscaling/v1alpha1"
 )
 
 const controllerAgentName = "sample-controller"
@@ -61,7 +61,7 @@ const (
 	MessageResourceSynced = "Foo synced successfully"
 )
 
-// Controller is the controller implementation for Foo resources
+// Controller is the controller implementation for PodAutoScalar resources
 type Controller struct {
 	// kubeclientset is a standard kubernetes clientset
 	kubeclientset kubernetes.Interface
@@ -70,7 +70,7 @@ type Controller struct {
 
 	deploymentsLister appslisters.DeploymentLister
 	deploymentsSynced cache.InformerSynced
-	foosLister        listers.FooLister
+	foosLister        listers.PodAutoscalerLister
 	foosSynced        cache.InformerSynced
 
 	// workqueue is a rate limited work queue. This is used to queue work to be
@@ -89,7 +89,7 @@ func NewController(
 	kubeclientset kubernetes.Interface,
 	sampleclientset clientset.Interface,
 	deploymentInformer appsinformers.DeploymentInformer,
-	fooInformer informers.FooInformer) *Controller {
+	fooInformer informers.PodAutoscalerInformer) *Controller {
 
 	// Create event broadcaster
 	// Add sample-controller types to the default Kubernetes Scheme so Events can be
@@ -249,7 +249,7 @@ func (c *Controller) syncHandler(key string) error {
 	}
 
 	// Get the Foo resource with this namespace/name
-	foo, err := c.foosLister.Foos(namespace).Get(name)
+	foo, err := c.foosLister.PodAutoscalers(namespace).Get(name)
 	if err != nil {
 		// The Foo resource may no longer exist, in which case we stop
 		// processing.
@@ -261,7 +261,7 @@ func (c *Controller) syncHandler(key string) error {
 		return err
 	}
 
-	deploymentName := foo.Spec.DeploymentName
+	deploymentName := foo.Name
 	if deploymentName == "" {
 		// We choose to absorb the error here as the worker would requeue the
 		// resource otherwise. Instead, the next time the resource is updated
@@ -374,12 +374,11 @@ func (c *Controller) handleObject(obj interface{}) {
 			return
 		}
 
-		foo, err := c.foosLister.Foos(object.GetNamespace()).Get(ownerRef.Name)
+		foo, err := c.foosLister.PodAutoscalers(object.GetNamespace()).Get(ownerRef.Name)
 		if err != nil {
 			klog.V(4).Infof("ignoring orphaned object '%s/%s' of foo '%s'", object.GetNamespace(), object.GetName(), ownerRef.Name)
 			return
 		}
-
 		c.enqueueFoo(foo)
 		return
 	}

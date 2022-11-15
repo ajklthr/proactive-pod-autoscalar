@@ -499,6 +499,8 @@ k8s.io/utils v0.0.0-20221107191617-1a15be271d1d h1:0Smp/HP1OH4Rvhe+4B8nWGERtlqAG
 k8s.io/utils v0.0.0-20221107191617-1a15be271d1d/go.mod h1:OLgZIPagt7ERELqWJFomSt595RzquPNLL48iOWgYOg0=
 knative.dev/networking v0.0.0-20221104155004-0d4e93709170 h1:/DP0jHUGFJcF20BH4waFLz/W/RBMH4f7wQpf12t0eDI=
 knative.dev/networking v0.0.0-20221104155004-0d4e93709170/go.mod h1:qwWlbknoGTz/NV+MKB7Hb2nMjwI5zfum3KLLSl2QUMc=
+knative.dev/networking v0.0.0-20221115023037-6d96d6934458 h1:IkzkudWL559ikDMkpVIQATgzIopE9DsX4+1+RNMzK1w=
+knative.dev/networking v0.0.0-20221115023037-6d96d6934458/go.mod h1:/jBp3S2UtXFB4CdTGHlvqkVifAlB119aq/MWLG4EohU=
 knative.dev/pkg v0.0.0-20221107171117-0243d641354d h1:ACj/4O74QvoB8zE/mlg1ji680gFW7RaUIjAL1x5IN58=
 knative.dev/pkg v0.0.0-20221107171117-0243d641354d/go.mod h1:JwNkOLWAeuMYlH9WQA83k+afGCanWcvWvdXZsI3xKo4=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=

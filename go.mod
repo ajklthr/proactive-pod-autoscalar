@@ -1,6 +1,6 @@
 // This is a generated file. Do not edit directly.
 
-module k8s.io/sample-controller
+module github.com/ajklthr/proactive-pod-autoscalar
 
 go 1.19
 
@@ -53,7 +53,7 @@ require (
 	k8s.io/gengo v0.0.0-20220902162205-c0856e24416d // indirect
 	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280 // indirect
 	k8s.io/utils v0.0.0-20221107191617-1a15be271d1d // indirect
-	knative.dev/networking v0.0.0-20221104155004-0d4e93709170 // indirect
+	knative.dev/networking v0.0.0-20221115023037-6d96d6934458 // indirect
 	knative.dev/pkg v0.0.0-20221107171117-0243d641354d // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect

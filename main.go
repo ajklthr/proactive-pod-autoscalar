@@ -27,9 +27,9 @@ import (
 	// Uncomment the following line to load the gcp plugin (only required to authenticate against GKE clusters).
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 
-	clientset "k8s.io/sample-controller/pkg/generated/clientset/versioned"
-	informers "k8s.io/sample-controller/pkg/generated/informers/externalversions"
-	"k8s.io/sample-controller/pkg/signals"
+	clientset "github.com/ajklthr/proactive-pod-autoscalar/pkg/client/clientset/versioned"
+	informers "github.com/ajklthr/proactive-pod-autoscalar/pkg/client/informers/externalversions"
+	"github.com/ajklthr/proactive-pod-autoscalar/pkg/signals"
 )
 
 var (
@@ -64,7 +64,7 @@ func main() {
 
 	controller := NewController(kubeClient, exampleClient,
 		kubeInformerFactory.Apps().V1().Deployments(),
-		exampleInformerFactory.Samplecontroller().V1alpha1().Foos())
+		exampleInformerFactory.Autoscaling().V1alpha1().PodAutoscalers())
 
 	// notice that there is no need to run Start methods in a separate goroutine. (i.e. go kubeInformerFactory.Start(stopCh)
 	// Start method is non-blocking and runs all registered informers in a dedicated goroutine.
