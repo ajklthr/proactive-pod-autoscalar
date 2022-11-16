@@ -9,6 +9,18 @@ go get knative.dev/networking/pkg/apis/networking
 ./hack/update-codegen.sh
 
 
+Example Kubectl :
+
+kubectl get all --all-namespaces
+
+kubectl get crd
+
+kubectl get PodAutoscaler
+
+kubectl describe PodAutoscaler hello-00001
+
+kubectl describe metric hello-00001
+
 
 # sample-controller
 
