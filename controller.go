@@ -19,6 +19,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"knative.dev/pkg/apis"
 	"log"
 	"time"
 
@@ -289,47 +290,71 @@ func (c *Controller) syncHandler(key string) error {
 
 	// If the Deployment is not controlled by this Foo resource, we should log
 	// a warning to the event recorder and return error msg.
-	if !metav1.IsControlledBy(deployment, foo) {
+
+	/*if !metav1.IsControlledBy(deployment, foo) {
 		msg := fmt.Sprintf(MessageResourceExists, deployment.Name)
 		c.recorder.Event(foo, corev1.EventTypeWarning, ErrResourceExists, msg)
 		return fmt.Errorf("%s", msg)
-	}
-
-	// If this number of the replicas on the Foo resource is specified, and the
-	// number does not equal the current desired replicas on the Deployment, we
-	// should update the Deployment resource.
-
-	/*if foo.Spec.ContainerConcurrency != nil && *foo.Spec.Replicas != *deployment.Spec.Replicas {
-		klog.V(4).Infof("Foo %s replicas: %d, deployment replicas: %d", name, *foo.Spec.Replicas, *deployment.Spec.Replicas)
-		deployment, err = c.kubeclientset.AppsV1().Deployments(foo.Namespace).Update(context.TODO(), newDeployment(foo), metav1.UpdateOptions{})
 	}*/
 
-	deployment, err = c.kubeclientset.AppsV1().Deployments(foo.Namespace).Get(context.TODO(), foo.Name+"-deployment", metav1.GetOptions{})
+	if foo.Annotations["autoscaling.knative.dev/class"] == "ppa" {
 
-	if err != nil {
-		log.Printf("Error getting deployment #{foo.Name}")
-		return nil
+		// If this number of the replicas on the Foo resource is specified, and the
+		// number does not equal the current desired replicas on the Deployment, we
+		// should update the Deployment resource.
+
+		/*if foo.Spec.ContainerConcurrency != nil && *foo.Spec.Replicas != *deployment.Spec.Replicas {
+			klog.V(4).Infof("Foo %s replicas: %d, deployment replicas: %d", name, *foo.Spec.Replicas, *deployment.Spec.Replicas)
+			deployment, err = c.kubeclientset.AppsV1().Deployments(foo.Namespace).Update(context.TODO(), newDeployment(foo), metav1.UpdateOptions{})
+		}*/
+
+		deployment, err = c.kubeclientset.AppsV1().Deployments(foo.Namespace).Get(context.TODO(), foo.Name+"-deployment", metav1.GetOptions{})
+
+		if err != nil {
+			log.Printf("Error getting deployment #{foo.Name}")
+			return nil
+		}
+		var x int32 = 5
+
+		deploymentCopy := deployment.DeepCopy()
+		deploymentCopy.Spec.Replicas = &x
+		deployment, err = c.kubeclientset.AppsV1().Deployments(foo.Namespace).Update(context.TODO(), deploymentCopy, metav1.UpdateOptions{})
+
+		// If an error occurs during Update, we'll requeue the item so we can
+		// attempt processing again later. This could have been caused by a
+		// temporary network failure, or any other transient reason.
+		if err != nil {
+			return err
+		}
+
+		// Finally, we update the status block of the Foo resource to reflect the
+		// current state of the world
+
+		pa, err := c.sampleclientset.AutoscalingV1alpha1().PodAutoscalers(foo.Namespace).Get(context.TODO(), foo.Name, metav1.GetOptions{})
+		if err != nil {
+			log.Printf("Error getting PodAutoscaler %q: %v.", pa.Name, err)
+			return err
+		}
+		log.Printf(pa.Name)
+		pa.Status.MarkActive()
+		pa.Status.SetConditions(apis.Conditions{{
+			Type:   apis.ConditionReady,
+			Status: corev1.ConditionTrue,
+			Reason: "I am born",
+		}})
+		log.Printf("'%v'", pa)
+		y, err := c.sampleclientset.AutoscalingV1alpha1().PodAutoscalers(foo.Namespace).Update(context.TODO(), pa, metav1.UpdateOptions{})
+		if err != nil {
+			log.Printf("Error retrieving podautoscalar")
+			return err
+		}
+		log.Printf("'%v'", y)
+		err = c.updateFooStatus(foo, deployment)
+		if err != nil {
+			log.Printf("Error retrieving podautoscalar")
+			return err
+		}
 	}
-	var x int32 = 5
-
-	deploymentCopy := deployment.DeepCopy()
-	deploymentCopy.Spec.Replicas = &x
-	deployment, err = c.kubeclientset.AppsV1().Deployments(foo.Namespace).Update(context.TODO(), deploymentCopy, metav1.UpdateOptions{})
-
-	// If an error occurs during Update, we'll requeue the item so we can
-	// attempt processing again later. This could have been caused by a
-	// temporary network failure, or any other transient reason.
-	if err != nil {
-		return err
-	}
-
-	// Finally, we update the status block of the Foo resource to reflect the
-	// current state of the world
-	err = c.updateFooStatus(foo, deployment)
-	if err != nil {
-		return err
-	}
-
 	c.recorder.Event(foo, corev1.EventTypeNormal, SuccessSynced, MessageResourceSynced)
 	return nil
 }
@@ -340,6 +365,12 @@ func (c *Controller) updateFooStatus(foo *samplev1alpha1.PodAutoscaler, deployme
 	// Or create a copy manually for better performance
 	fooCopy := foo.DeepCopy()
 	fooCopy.Status.ActualScale = &deployment.Status.AvailableReplicas
+	fooCopy.Status.MarkActive()
+	fooCopy.Status.SetConditions(apis.Conditions{{
+		Type:   apis.ConditionReady,
+		Status: corev1.ConditionTrue,
+		Reason: "I am born",
+	}})
 	// If the CustomResourceSubresources feature gate is not enabled,
 	// we must use Update instead of UpdateStatus to update the Status block of the Foo resource.
 	// UpdateStatus will not allow changes to the Spec of the resource,

@@ -27,6 +27,18 @@ kubectl describe PodAutoscaler hello-00001
 
 kubectl describe metric hello-00001
 
+kubectl apply -f ./artifacts/examples/hello.yaml
+
+kn service list
+
+kn service delete hello
+
+
+Links:
+
+https://knative.dev/docs/getting-started/first-service/
+
+
 
 # sample-controller
 
