@@ -6,7 +6,13 @@ go get knative.dev/pkg/apis/duck/v1
 
 go get knative.dev/networking/pkg/apis/networking
 
+go get knative.dev/serving/pkg/apis/serving
+
+go get github.com/go-openapi/swag@v0.19.15
+
 ./hack/update-codegen.sh
+
+./ppa-controller -kubeconfig=$HOME/.kube/config
 
 
 Example Kubectl :
