@@ -19,6 +19,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -274,7 +275,9 @@ func (c *Controller) syncHandler(key string) error {
 	deployment, err := c.deploymentsLister.Deployments(foo.Namespace).Get(deploymentName)
 	// If the resource doesn't exist, we'll create it
 	if errors.IsNotFound(err) {
-		deployment, err = c.kubeclientset.AppsV1().Deployments(foo.Namespace).Create(context.TODO(), newDeployment(foo), metav1.CreateOptions{})
+		log.Printf("Error Finding deployment")
+
+		//deployment, err = c.kubeclientset.AppsV1().Deployments(foo.Namespace).Create(context.TODO(), newDeployment(foo), metav1.CreateOptions{})
 	}
 
 	// If an error occurs during Get/Create, we'll requeue the item so we can
@@ -295,10 +298,23 @@ func (c *Controller) syncHandler(key string) error {
 	// If this number of the replicas on the Foo resource is specified, and the
 	// number does not equal the current desired replicas on the Deployment, we
 	// should update the Deployment resource.
-	if foo.Spec.ContainerConcurrency != nil && *foo.Spec.Replicas != *deployment.Spec.Replicas {
+
+	/*if foo.Spec.ContainerConcurrency != nil && *foo.Spec.Replicas != *deployment.Spec.Replicas {
 		klog.V(4).Infof("Foo %s replicas: %d, deployment replicas: %d", name, *foo.Spec.Replicas, *deployment.Spec.Replicas)
 		deployment, err = c.kubeclientset.AppsV1().Deployments(foo.Namespace).Update(context.TODO(), newDeployment(foo), metav1.UpdateOptions{})
+	}*/
+
+	deployment, err = c.kubeclientset.AppsV1().Deployments(foo.Namespace).Get(context.TODO(), foo.Name+"-deployment", metav1.GetOptions{})
+
+	if err != nil {
+		log.Printf("Error getting deployment #{foo.Name}")
+		return nil
 	}
+	var x int32 = 5
+
+	deploymentCopy := deployment.DeepCopy()
+	deploymentCopy.Spec.Replicas = &x
+	deployment, err = c.kubeclientset.AppsV1().Deployments(foo.Namespace).Update(context.TODO(), deploymentCopy, metav1.UpdateOptions{})
 
 	// If an error occurs during Update, we'll requeue the item so we can
 	// attempt processing again later. This could have been caused by a
@@ -323,7 +339,7 @@ func (c *Controller) updateFooStatus(foo *samplev1alpha1.PodAutoscaler, deployme
 	// You can use DeepCopy() to make a deep copy of original object and modify this copy
 	// Or create a copy manually for better performance
 	fooCopy := foo.DeepCopy()
-	fooCopy.Status.ActualScale = deployment.Status.AvailableReplicas
+	fooCopy.Status.ActualScale = &deployment.Status.AvailableReplicas
 	// If the CustomResourceSubresources feature gate is not enabled,
 	// we must use Update instead of UpdateStatus to update the Status block of the Foo resource.
 	// UpdateStatus will not allow changes to the Spec of the resource,
@@ -384,10 +400,11 @@ func (c *Controller) handleObject(obj interface{}) {
 	}
 }
 
+/*
 // newDeployment creates a new Deployment for a Foo resource. It also sets
 // the appropriate OwnerReferences on the resource so handleObject can discover
 // the Foo resource that 'owns' it.
-func newDeployment(foo *samplev1alpha1.Foo) *appsv1.Deployment {
+func newDeployment(foo *samplev1alpha1.PodAutoscaler) *appsv1.Deployment {
 	labels := map[string]string{
 		"app":        "nginx",
 		"controller": foo.Name,
@@ -421,3 +438,4 @@ func newDeployment(foo *samplev1alpha1.Foo) *appsv1.Deployment {
 		},
 	}
 }
+*/
