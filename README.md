@@ -31,12 +31,61 @@ kubectl apply -f ./artifacts/examples/hello.yaml
 
 kn service list
 
+kubectl describe ksvc hello
+
 kn service delete hello
 
+kubectl get pods -n kourier-system
+kubectl delete pod 3scale-kourier-gateway-698ffbdd8f-rhfht -n kourier-system
+
+kubectl logs net-kourier-controller-7c78df795b-gd77w -n knative-serving
+
+kubectl get pods --field-selector status.podIP=172.17.0.2 -A
+kubectl logs  3scale-kourier-gateway-698ffbdd8f-s9gnd -n kourier-system
+kubectl delete pod 3scale-kourier-gateway-698ffbdd8f-8lpzg -n kourier-system
+kubectl logs autoscaler-5648f65679-5pkj9 -n knative-serving
+
+docker run --rm curlimages/curl:7.86.0 --version
+kubectl run curler --image=curlimages/curl -i --tty -- sh
+kubectl exec -i curler -i --tty -- sh
+curl -v http://172.17.0.9:8022
+
+curl  http://hello.default.svc.cluster.local
+
+kubectl describe ingresses.networking.internal.knative.dev
+
+kubectl describe pod hello-00001-deployment-667dc57c7b-pmv84
+https://kubernetes.io/docs/tasks/administer-cluster/access-cluster-api/
+
+
+curl -verbose -H "Host: hello.default.127.0.0.1.sslip.io" http://127.0.0.1:8080
+curl -v -H "Host: helloworld-go.default.127.0.0.1.nip.io" http://localhost:8080
+
+curl http://localhost:8080/api/
+
+kubectl --namespace kourier-system get service kourier
+https://platform9.com/blog/how-to-set-up-knative-serving-on-kubernetes/
+
+
+kubectl patch configmap/config-domain \
+--namespace knative-serving \
+--type merge \
+--patch '{"data":{"knative.pf9.io":""}}'
 
 Links:
 
+
+kubectl port-forward --namespace kourier-system $(kubectl get pod -n kourier-system -l "app=3scale-kourier-gateway" --output=jsonpath="{.items[0].metadata.name}") 8080:8080 19000:9000 8443:8443
+
+
+kubectl describe route hello
+
+kn revision describe hello-00002
+
 https://knative.dev/docs/getting-started/first-service/
+
+
+kubectl describe revision hello-00001
 
 
 

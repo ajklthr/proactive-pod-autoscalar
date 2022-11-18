@@ -314,12 +314,16 @@ func (c *Controller) syncHandler(key string) error {
 			log.Printf("Error getting deployment #{foo.Name}")
 			return nil
 		}
-		var x int32 = 5
+		var x int32 = 2
 
 		deploymentCopy := deployment.DeepCopy()
 		deploymentCopy.Spec.Replicas = &x
-		deployment, err = c.kubeclientset.AppsV1().Deployments(foo.Namespace).Update(context.TODO(), deploymentCopy, metav1.UpdateOptions{})
-
+		scale, err := c.kubeclientset.AppsV1().Deployments(foo.Namespace).GetScale(context.TODO(), foo.Name+"-deployment", metav1.GetOptions{})
+		log.Printf("Current Scale '%v'", scale)
+		var scalecopy = scale.DeepCopy()
+		scalecopy.Spec.Replicas = x
+		//_, err = c.kubeclientset.AppsV1().Deployments(foo.Namespace).UpdateScale(context.TODO(), foo.Name+"-deployment", &autoscalingv1.Scale{Spec: autoscalingv1.ScaleSpec{Replicas: 5}}, metav1.UpdateOptions{})
+		_, err = c.kubeclientset.AppsV1().Deployments(foo.Namespace).UpdateScale(context.TODO(), foo.Name+"-deployment", scalecopy, metav1.UpdateOptions{})
 		// If an error occurs during Update, we'll requeue the item so we can
 		// attempt processing again later. This could have been caused by a
 		// temporary network failure, or any other transient reason.
@@ -330,7 +334,7 @@ func (c *Controller) syncHandler(key string) error {
 		// Finally, we update the status block of the Foo resource to reflect the
 		// current state of the world
 
-		pa, err := c.sampleclientset.AutoscalingV1alpha1().PodAutoscalers(foo.Namespace).Get(context.TODO(), foo.Name, metav1.GetOptions{})
+		/*pa, err := c.sampleclientset.AutoscalingV1alpha1().PodAutoscalers(foo.Namespace).Get(context.TODO(), foo.Name, metav1.GetOptions{})
 		if err != nil {
 			log.Printf("Error getting PodAutoscaler %q: %v.", pa.Name, err)
 			return err
@@ -338,9 +342,10 @@ func (c *Controller) syncHandler(key string) error {
 		log.Printf(pa.Name)
 		pa.Status.MarkActive()
 		pa.Status.SetConditions(apis.Conditions{{
-			Type:   apis.ConditionReady,
-			Status: corev1.ConditionTrue,
-			Reason: "I am born",
+			Type:               apis.ConditionReady,
+			Status:             corev1.ConditionTrue,
+			Reason:             "I am born",
+			LastTransitionTime: apis.VolatileTime{Inner: metav1.Now()},
 		}})
 		log.Printf("'%v'", pa)
 		y, err := c.sampleclientset.AutoscalingV1alpha1().PodAutoscalers(foo.Namespace).Update(context.TODO(), pa, metav1.UpdateOptions{})
@@ -348,7 +353,8 @@ func (c *Controller) syncHandler(key string) error {
 			log.Printf("Error retrieving podautoscalar")
 			return err
 		}
-		log.Printf("'%v'", y)
+		log.Printf("'%v'", y) */
+
 		err = c.updateFooStatus(foo, deployment)
 		if err != nil {
 			log.Printf("Error retrieving podautoscalar")
@@ -364,12 +370,14 @@ func (c *Controller) updateFooStatus(foo *samplev1alpha1.PodAutoscaler, deployme
 	// You can use DeepCopy() to make a deep copy of original object and modify this copy
 	// Or create a copy manually for better performance
 	fooCopy := foo.DeepCopy()
-	fooCopy.Status.ActualScale = &deployment.Status.AvailableReplicas
+	var x int32 = 2
+	fooCopy.Status.DesiredScale = &x
 	fooCopy.Status.MarkActive()
 	fooCopy.Status.SetConditions(apis.Conditions{{
-		Type:   apis.ConditionReady,
-		Status: corev1.ConditionTrue,
-		Reason: "I am born",
+		Type:               apis.ConditionReady,
+		Status:             corev1.ConditionTrue,
+		Reason:             "I am born",
+		LastTransitionTime: apis.VolatileTime{Inner: metav1.Now()},
 	}})
 	// If the CustomResourceSubresources feature gate is not enabled,
 	// we must use Update instead of UpdateStatus to update the Status block of the Foo resource.
