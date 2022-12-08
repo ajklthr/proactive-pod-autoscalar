@@ -5,11 +5,16 @@ module github.com/ajklthr/proactive-pod-autoscalar
 go 1.19
 
 require (
-	k8s.io/api v0.25.2
-	k8s.io/apimachinery v0.25.2
-	k8s.io/client-go v0.25.2
-	k8s.io/code-generator v0.25.2
+	github.com/google/go-cmp v0.5.9
+	k8s.io/api v0.25.4
+	k8s.io/apimachinery v0.25.4
+	k8s.io/client-go v0.25.4
+	k8s.io/code-generator v0.25.4
 	k8s.io/klog/v2 v2.80.1
+	k8s.io/metrics v0.25.4
+	knative.dev/networking v0.0.0-20221115023037-6d96d6934458
+	knative.dev/pkg v0.0.0-20221107171117-0243d641354d
+	knative.dev/serving v0.35.0
 )
 
 require (
@@ -26,7 +31,6 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/gnostic v0.5.7-v3refs // indirect
-	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/go-containerregistry v0.8.1-0.20220414143355-892d7a808387 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
@@ -58,9 +62,6 @@ require (
 	k8s.io/gengo v0.0.0-20220902162205-c0856e24416d // indirect
 	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280 // indirect
 	k8s.io/utils v0.0.0-20221107191617-1a15be271d1d // indirect
-	knative.dev/networking v0.0.0-20221115023037-6d96d6934458 // indirect
-	knative.dev/pkg v0.0.0-20221107171117-0243d641354d // indirect
-	knative.dev/serving v0.35.0 // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect

@@ -58,8 +58,9 @@ kubectl describe pod hello-00001-deployment-667dc57c7b-pmv84
 https://kubernetes.io/docs/tasks/administer-cluster/access-cluster-api/
 
 
-curl -verbose -H "Host: hello.default.127.0.0.1.sslip.io" http://127.0.0.1:8080
-curl -v -H "Host: helloworld-go.default.127.0.0.1.nip.io" http://localhost:8080
+curl -verbose -H "Host: hello.default.127.0.0.1.sslip.io" http://127.0.0.1:80
+
+curl  -H "Host: hello.default.127.0.0.1.sslip.io" http://127.0.0.1:80
 
 curl http://localhost:8080/api/
 

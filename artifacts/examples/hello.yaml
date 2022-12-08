@@ -6,7 +6,7 @@ spec:
   template:
     metadata:
       annotations:
-        autoscaling.knative.dev/class: "ppa"
+        autoscaling.knative.dev/class: "kpa.autoscaling.knative.dev"
     spec:
       containers:
         - image: gcr.io/knative-samples/helloworld-go
